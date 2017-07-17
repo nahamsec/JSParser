@@ -1,0 +1,15 @@
+{% module Template("header.html") %}
+
+    <h1>Parse URLs</h1>
+    
+    <form method="post" name="parser">
+      <div class="form-group">
+        <label for="urls">URLs</label>
+        <textarea class="form-control" id="urls" name="urls" rows="3"></textarea>
+      </div>
+      <button type="button" class="btn btn-primary" onclick="parseURLs();">JSParse</button>
+    </form>
+
+    <div id="results"></div>
+    
+{% module Template("footer.html") %}

@@ -1,0 +1,33 @@
+
+.main {
+    margin-top: 100px;
+    width: 100%;
+}
+
+.form-group {
+    padding: 10px;
+}
+
+#results { font-family: Verdana; font-size: 14px; } 
+#results h1 {
+    font-size: 150%;
+    margin: 0;
+    padding: 5px;
+} 
+#results h2 { font-size: 125%; color: #666; } 
+#results .file {
+    padding: 5px;
+}
+#results .link { 
+    padding: 3px; 
+    border: 1px solid #555;
+    background: #eee none repeat scroll 0 0;
+} 
+#results .highlight { color: #000; background: yellow; }
+
+#results .result {
+    margin-top: 10px;
+    border: 1px solid #555;
+    border-radius: 10px;
+    padding: 6px;
+}

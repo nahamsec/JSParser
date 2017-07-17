@@ -1,0 +1,20 @@
+{% module Template("header.html") %}
+
+<h1>Results</h1>
+
+<div id="results">
+
+{% if error == "True" %}
+
+    <h1>Error</h1>
+    <p>{{errorMsg}}</p>
+
+{% else %}
+
+{% raw data %}
+
+{% end %}
+
+</div>
+
+{% module Template("footer.html") %}

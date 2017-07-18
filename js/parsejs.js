@@ -18,6 +18,8 @@ function parseURLs() {
     // Parse URLs
     var urls = $("#urls").val();
     urls = urls.split("\n");
+    // Empty results div
+    $("#results").empty();
     // Build index
     if($("ul#index li").size()==0) {
         $("#results").append('<h2>Index</h2><div class="index"><ul id="index"></ul></div><h2>Results</h2>')

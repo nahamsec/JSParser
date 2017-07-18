@@ -89,7 +89,7 @@ class ViewParseAjaxHandler(BaseHandler):
         discoveredLinks = []
         outputLinks = []
         # ugh lol
-        regex = "(`|'|\")([\/]([_a-zA-Z0-9\-\_]+))+"
+        regex = "[^/][`'\"]([\/][a-zA-Z0-9_.-]{2,})+(?!\/g|i|;|,)"
         links = re.finditer(regex, contents) 
         for link in links:
             linkStr = link.group(0)

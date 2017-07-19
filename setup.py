@@ -9,5 +9,6 @@ setup(
     long_description=open('README.md').read(),
     author='Ben Sadeghipour',
     url='https://github.com/nahamsec/JSParser',
-    install_requires=['safeurl', 'tornado', 'jsbeautifier', 'netaddr', 'pycurl', 'BeautifulSoup4'],
+    install_requires=['safeurl', 'tornado', 'jsbeautifier',
+                      'netaddr', 'pycurl', 'BeautifulSoup4'],
 )

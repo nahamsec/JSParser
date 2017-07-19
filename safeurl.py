@@ -27,17 +27,37 @@ except:
     from urllib.parse import urlparse
     from urllib.parse import quote
 
-class InvalidOptionException(Exception): pass
-class InvalidURLException(Exception): pass
-class InvalidDomainException(Exception): pass
-class InvalidIPException(Exception): pass
-class InvalidPortException(Exception): pass
-class InvalidSchemeException(Exception): pass
+
+class InvalidOptionException(Exception):
+    pass
+
+
+class InvalidURLException(Exception):
+    pass
+
+
+class InvalidDomainException(Exception):
+    pass
+
+
+class InvalidIPException(Exception):
+    pass
+
+
+class InvalidPortException(Exception):
+    pass
+
+
+class InvalidSchemeException(Exception):
+    pass
+
 
 class Empty(object):
     pass
 
 # TODO: Remove this ugly hack!
+
+
 def _mutable(obj):
     newobj = Empty()
     for i in dir(obj):
@@ -45,36 +65,45 @@ def _mutable(obj):
             setattr(newobj, i, getattr(obj, i))
     return newobj
 
+
 def _check_allowed_keys(val):
     if val not in ["ip", "port", "domain", "scheme"]:
-        raise InvalidOptionException("Provided type 'type' must be 'ip', 'port', 'domain' or 'scheme'")
+        raise InvalidOptionException(
+            "Provided type 'type' must be 'ip', 'port', 'domain' or 'scheme'")
+
 
 def _check_allowed_lists(val):
     if val not in ["whitelist", "blacklist"]:
-        raise InvalidOptionException("Provided list 'list' must be 'whitelist' or 'blacklist'")
+        raise InvalidOptionException(
+            "Provided list 'list' must be 'whitelist' or 'blacklist'")
+
 
 class Options(object):
     """
     This object contains configuration options for safeurl.
     """
+
     def __init__(self):
         self._follow_location = False
         self._follow_location_limit = 0
         self._send_credentials = False
         self._pin_dns = False
         self._lists = {
-                "whitelist": {
-                    "ip": [],
-                    "port": ["80", "443", "8080"],
-                    "domain": [],
-                    "scheme": ["http", "https"]},
-                "blacklist": {
-                    "ip": ["0.0.0.0/8", "10.0.0.0/8", "100.64.0.0/10", "127.0.0.0/8", "169.254.0.0/16",
-                        "172.16.0.0/12", "192.0.0.0/29", "192.0.2.0/24", "192.88.99.0/24", "192.168.0.0/16",
-                        "198.18.0.0/15", "198.51.100.0/24", "203.0.113.0/24", "224.0.0.0/4", "240.0.0.0/4"],
-                    "port": [],
-                    "domain": [],
-                    "scheme": []}
+            "whitelist": {
+                "ip": [],
+                "port": ["80", "443", "8080"],
+                "domain": [],
+                "scheme": ["http", "https"]},
+            "blacklist": {
+                "ip": ["0.0.0.0/8", "10.0.0.0/8", "100.64.0.0/10",
+                       "127.0.0.0/8", "169.254.0.0/16",
+                       "172.16.0.0/12", "192.0.0.0/29", "192.0.2.0/24",
+                       "192.88.99.0/24", "192.168.0.0/16",
+                       "198.18.0.0/15", "198.51.100.0/24",
+                       "203.0.113.0/24", "224.0.0.0/4", "240.0.0.0/4"],
+                "port": [],
+                "domain": [],
+                "scheme": []}
         }
 
     def getFollowLocation(self):
@@ -120,7 +149,8 @@ class Options(object):
         :rtype: int
         """
         if not isinstance(limit, Number) or limit < 0:
-            raise InvalidOptionException("Provided limit 'limit' must be an integer >= 0")
+            raise InvalidOptionException(
+                "Provided limit 'limit' must be an integer >= 0")
 
         self._follow_location_limit = limit
         return self
@@ -255,7 +285,8 @@ class Options(object):
             return self
 
         if not isinstance(values, dict):
-            raise InvalidOptionException("Provided values must be a dictionary")
+            raise InvalidOptionException(
+                "Provided values must be a dictionary")
 
         for k, v in values.iteritems():
             _check_allowed_keys(k)
@@ -328,6 +359,7 @@ class Options(object):
         self._lists[lst][type_] = [x for x in dst if x not in values]
         return self
 
+
 class Url(object):
     """
     Class for handling URLs
@@ -354,7 +386,8 @@ class Url(object):
             raise InvalidURLException("Error parsing URL 'url'")
 
         if parts.hostname is None:
-            raise InvalidURLException("Provided URL 'url' doesn't contain a hostname")
+            raise InvalidURLException(
+                "Provided URL 'url' doesn't contain a hostname")
 
         # First, validate the scheme
         if len(parts.scheme) != 0:
@@ -371,7 +404,8 @@ class Url(object):
         parts.ips = Url.resolveHostname(parts.hostname)
 
         # Validate the host
-        parts.hostname = Url.validateHostname(parts.hostname, parts.ips, options)
+        parts.hostname = Url.validateHostname(
+            parts.hostname, parts.ips, options)
 
         if options.getPinDns():
             # Since we"re pinning DNS, we replace the host in the URL
@@ -381,7 +415,8 @@ class Url(object):
         # Rebuild the URL
         cleanUrl = Url.buildUrl(parts)
 
-        return {"originalUrl": str(url), "cleanUrl": str(cleanUrl), "parts": parts}
+        return {"originalUrl": str(url),
+                "cleanUrl": str(cleanUrl), "parts": parts}
 
     @staticmethod
     def validateScheme(scheme, options):
@@ -397,10 +432,13 @@ class Url(object):
         """
         # Whitelist always takes precedence over a blacklist
         if not options.isInList("whitelist", "scheme", scheme):
-            raise InvalidSchemeException("Provided scheme 'scheme' doesn't match whitelisted values: %s" % (", ".join(options.getList("whitelist", "scheme"))))
+            raise InvalidSchemeException("Provided scheme 'scheme' doesn't \
+                match whitelisted values: %s" % (
+                ", ".join(options.getList("whitelist", "scheme"))))
 
         if options.isInList("blacklist", "scheme", scheme):
-            raise InvalidSchemeException("Provided scheme 'scheme' matches a blacklisted value")
+            raise InvalidSchemeException(
+                "Provided scheme 'scheme' matches a blacklisted value")
 
         # Existing value is fine
         return scheme
@@ -418,10 +456,13 @@ class Url(object):
         :rtype: int
         """
         if not options.isInList("whitelist", "port", port):
-            raise InvalidPortException("Provided port 'port' doesn't match whitelisted values: %s" % (", ".join(options.getList("whitelist", "port"))))
+            raise InvalidPortException("Provided port 'port' doesn't match \
+                whitelisted values: %s" % (
+                ", ".join(options.getList("whitelist", "port"))))
 
         if options.isInList("blacklist", "port", port):
-            raise InvalidPortException("Provided port 'port' matches a blacklisted value")
+            raise InvalidPortException(
+                "Provided port 'port' matches a blacklisted value")
 
         # Existing value is fine
         return port
@@ -442,25 +483,34 @@ class Url(object):
         """
         # Check the host against the domain lists
         if not options.isInList("whitelist", "domain", hostname):
-            raise InvalidDomainException("Provided hostname 'hostname' doesn't match whitelisted values: %s" % (", ".join(options.getList("whitelist", "domain"))))
+            raise InvalidDomainException("Provided hostname 'hostname' doesn't match \
+            whitelisted values: %s" % (
+                ", ".join(options.getList("whitelist", "domain"))))
 
         if options.isInList("blacklist", "domain", hostname):
-            raise InvalidDomainException("Provided hostname 'hostname' matches a blacklisted value")
+            raise InvalidDomainException(
+                "Provided hostname 'hostname' matches a blacklisted value")
 
         whitelistedIps = options.getList("whitelist", "ip")
 
         if len(whitelistedIps) != 0:
-            has_match = any(Url.cidrMatch(ip, wlip) for ip in ips for wlip in whitelistedIps)
+            has_match = any(Url.cidrMatch(ip, wlip)
+                            for ip in ips for wlip in whitelistedIps)
             if not has_match:
-                raise InvalidIPException("Provided hostname 'hostname' resolves to '%s', which doesn't match whitelisted values: %s" % (", ".join(ips), \
-                        ", ".join(whitelistedIps)))
+                raise InvalidIPException("Provided hostname 'hostname' \
+                    resolves to '%s', which doesn't match whitelisted values: %s"
+                                         % (", ".join(ips),
+                                            ", ".join(whitelistedIps)))
 
         blacklistedIps = options.getList("blacklist", "ip")
 
         if len(blacklistedIps) != 0:
-            has_match = any(Url.cidrMatch(ip, blip) for ip in ips for blip in blacklistedIps)
+            has_match = any(Url.cidrMatch(ip, blip)
+                            for ip in ips for blip in blacklistedIps)
             if has_match:
-                raise InvalidIPException("Provided hostname 'hostname' resolves to '%s', which matches a blacklisted value: %s" % (", ".join(ips), blacklistedIps))
+                raise InvalidIPException("Provided hostname 'hostname' \
+                    resolves to '%s', which matches a blacklisted value: %s" % (
+                    ", ".join(ips), blacklistedIps))
 
         return hostname
 
@@ -505,7 +555,8 @@ class Url(object):
         if len(parts.query) != 0:
             query = quote(parts.query)
             # Replace encoded &, =, ;, [ and ] to originals
-            query = query.replace("%26", "&").replace("%3D", "=").replace("%3B", ";").replace("%5B", "[").replace("%5D", "]")
+            query = query.replace("%26", "&").replace("%3D", "=").replace(
+                "%3B", ";").replace("%5B", "[").replace("%5D", "]")
             url.append("?")
             url.append(query)
 
@@ -528,7 +579,9 @@ class Url(object):
             ips = gethostbyname_ex(hostname)
             return ips[2]
         except:
-            raise InvalidDomainException("Provided hostname 'hostname' doesn't resolve to an IP address")
+            raise InvalidDomainException(
+                "Provided hostname 'hostname' doesn't \
+                to an IP address")
 
     @staticmethod
     def cidrMatch(ip, cidr):
@@ -544,10 +597,12 @@ class Url(object):
         """
         return netaddr.IPAddress(ip) in netaddr.IPNetwork(cidr)
 
+
 class SafeURL(object):
     """
     Core interface of module
     """
+
     def __init__(self, handle=None, options=None):
         self.setCurlHandle(handle)
 
@@ -613,7 +668,7 @@ class SafeURL(object):
 
         :param arg1: URL
         :type arg1: string
-        
+
         :rtype: string
         """
         # Backup the existing URL
@@ -631,17 +686,22 @@ class SafeURL(object):
 
             # Are there credentials, but we don"t want to send them?
             if not self._options.getSendCredentials() and \
-                (url["parts"].username is not None or url["parts"].password is not None):
-                raise InvalidURLException("Credentials passed in but 'sendCredentials' is set to false")
+                    (url["parts"].username is not None or
+                        url["parts"].password is not None):
+                raise InvalidURLException(
+                    "Credentials passed in but 'sendCredentials' \
+                    is set to false")
 
             if self._options.getPinDns():
                 # Send a Host header
-                self._handle.setopt(pycurl.HTTPHEADER, ["Host: %s" % url["parts"].hostname])
+                self._handle.setopt(pycurl.HTTPHEADER, [
+                                    "Host: %s" % url["parts"].hostname])
                 # The "fake" URL
                 self._handle.setopt(pycurl.URL, url["cleanUrl"])
 
                 # We also have to disable SSL cert verification, which is not great
-                # Might be possible to manually check the certificate ourselves?
+                # Might be possible to manually check the certificate
+                # ourselves?
                 self._handle.setopt(pycurl.SSL_VERIFYPEER, False)
             else:
                 self._handle.setopt(pycurl.URL, url["cleanUrl"])

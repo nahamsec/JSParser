@@ -172,7 +172,7 @@ class ViewParseAjaxHandler(BaseHandler):
                         continue
             # ignore if not json
             except:
-                print 'ignoring custom headers'
+                print("ignoring custom headers")
             if newHeaders:
                 sc._handle.setopt(pycurl.HTTPHEADER, newHeaders)
 

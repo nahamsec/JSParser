@@ -1,4 +1,4 @@
-
+from __future__ import print_function
 import tornado.ioloop, tornado.web, tornado.autoreload
 from tornado.escape import json_encode, json_decode
 
@@ -136,7 +136,7 @@ class ViewParseAjaxHandler(BaseHandler):
         
         # if we have results, start building HTML
         if parsedLinks:
-            print "Discovered {} links in {}".format(len(parsedLinks), url)
+            print("Discovered {} links in {}".format(len(parsedLinks), url))
             # generate HTML output
             # html = html+'<h1>{}</h1><div class="file">'.format(url)
             html = html+'<div class="file">'

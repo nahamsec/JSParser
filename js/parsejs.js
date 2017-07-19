@@ -1,5 +1,16 @@
 
-var i = 0;
+var results = []
+
+var total = 0;
+var current = 0;
+
+class Result {
+    constructor(url, result, output) {
+        this.url = url;
+        this.result = result;
+        this.output = output;
+    }
+}        
 
 function toggleHeaders() {
     $("#headers").toggle();
@@ -16,27 +27,21 @@ function getCustomHeaders() {
     return null;
 }
 
-function parseJS(i, url) {
-    
-    $("#results").append('<div class="result" id="result-'+i+'"><h1></h1><div class="output">Loading...</div></div>');
-    $("#result-"+i+" h1").append("<a></a>");
-    $("#result-"+i+" a").text(url).attr({'href':url,'target':'_new'});
-    
+function parseJS(url) {
     $.post("/parse/ajax", {
         url: url,
         headers: getCustomHeaders(),
     }, function(data) {
-        // convert to json
-        console.log(data);
-        // output
-        if(data["output"]) {
-            $("#result-"+i+" .output").html(data["output"]);
-        }else{
-            $("#result-"+i+" .output").text("Failed load, parse, or no results.");
-        }
-        
+        var succeeded = false;
+        // success if we have output
+        if(data["output"]) succeeded = true;
+        // push our data to results
+        var index = results.push(new Result(data["url"],succeeded,data["output"]));
+        // length-1 to get newest index
+        addResult(index-1);
+        // remove from total
+        updateProgress();
     });
-    
 }
 
 function parseURLs() {
@@ -44,18 +49,100 @@ function parseURLs() {
     var urls = $("#urls").val();
     urls = urls.split("\n");
     // Empty results div
-    $("#results").empty();
-    // Build index
-    if($("ul#index li").size()==0) {
-        $("#results").append('<h2>Index</h2><div class="index"><ul id="index"></ul></div><h2>Results</h2>')
-    }
+    resetResults();
+    // Reset progress bar
+    resetProgress();
+    // Progress bar
+    total = urls.length;
+    current = 0;
+    $(".progress").show();
     // Parse JS
     urls.forEach(function(url) {
-        // parse js file
-        parseJS(i, url);
-        // add to index
-        $("#index").append('<li><a href="#result-'+i+'" id="index-'+i+'"></a></li>');
-        $('#index-'+i).text(url);
-        i++;
+        parseJS(url);
     });
 }
+
+function updateProgress() {
+    // remove from total
+    current = current+1
+    // get new progress %
+    progress = (current/total)*100;
+    
+    // update
+    $("#progress").attr("aria-valuenow",progress);
+    $("#progress").css("width",progress+"%");
+    $("#progress").text(Math.ceil(progress)+"%");
+}
+
+function resetProgress() {
+    $("#progress").attr("aria-valuenow",0);
+    $("#progress").css("width","0%");
+    $("#progress").text("0%");
+}
+
+function resetResults() {
+    results = []
+    rebuildResults();
+}
+
+function rebuildResults() {
+    $("#results").empty();
+    $("#results").html('<h2>Index</h2><div id="index"><ul></ul></div><h2>Results</h2><div id="output"></div>');
+}
+
+function buildIndex() {
+    $("#index ul").empty();
+    $.each(results, function(i, val) {
+        if(hideResults() && val["result"] == false) return;
+        $("#index ul").append('<li id="index-'+i+'"><a href="#result-'+i+'"></a></li>');
+        $('#index-'+i+' a').text(val["url"]);
+    });
+}
+
+function appendIndex(i) {
+    if(hideResults() && results[i]["result"] == false) return;
+    $("#index ul").append('<li id="index-'+i+'"><a href="#result-'+i+'"></a></li>');
+    $('#index-'+i+' a').text(results[i]["url"]);
+}
+
+function buildResults() {
+    $("#output").empty();
+    $.each(results, function(i, val) {
+        if(hideResults() && val["result"] == false) return;
+        if(val["result"] == false) val["output"] = "no results";
+        $("#output").append('<div class="result" id="result-'+i+'"><h1></h1><div class="output">'+val["output"]+'</div></div>');
+        $("#result-"+i+" h1").append("<a></a>");
+        $("#result-"+i+" a").text(val["url"]).attr({'href':val["url"],'target':'_new'});
+    });
+}
+
+function appendResults(i) {
+    if(hideResults() && results[i]["result"] == false) return;
+    if(results[i]["result"] == false) results[i]["output"] = "no results";
+    $("#output").append('<div class="result" id="result-'+i+'"><h1></h1><div class="output">'+results[i]["output"]+'</div></div>');
+    $("#result-"+i+" h1").append("<a></a>");
+    $("#result-"+i+" a").text(results[i]["url"]).attr({'href':results[i]["url"],'target':'_new'});
+}
+
+function addResult(i) {
+    appendIndex(i)
+    appendResults(i)
+}
+
+function toggleResults() {
+    rebuildResults();
+    buildIndex();
+    buildResults();
+}
+
+function hideResults() {
+    if($("#hideResults").is(":checked")) return true;
+    return false;
+}
+
+$(function() {
+    rebuildResults();
+    $('#hideResults').change(function() { 
+        toggleResults();
+    });
+});

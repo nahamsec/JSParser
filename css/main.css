@@ -64,9 +64,12 @@ textarea.form-control {
 .btn-white {
     background-color: #fff !important;
     color: #000 !important;
-
 }
 
 #headers {
+    display: none;
+}
+
+.progress {
     display: none;
 }

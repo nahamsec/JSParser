@@ -14,7 +14,7 @@ from cgi import escape
 #------------------------------------------------------------
 
 class BaseHandler(tornado.web.RequestHandler):
-        
+
     def get_current_user(self):
         return []
 
@@ -38,7 +38,7 @@ class ErrorHandler(tornado.web.ErrorHandler, BaseHandler):
 class MainHandler(BaseHandler):
     def initialize(self):
         return
-        
+
     def get(self):
         self.render(
             'templates/index.html',
@@ -51,13 +51,13 @@ class MainHandler(BaseHandler):
 class ViewAboutHandler(BaseHandler):
     def initialize(self):
         return
-        
+
     def get(self):
         self.render(
             'templates/about.html',
         )
 
-        
+
 #------------------------------------------------------------
 # /parse/ajax
 #------------------------------------------------------------
@@ -76,7 +76,7 @@ class ViewParseAjaxHandler(BaseHandler):
                         return index
                 index += 1
         return -1
-        
+
     def findEntireLine(self, contents, str):
         lineNum = 0
         for item in contents.split("\n"):
@@ -84,13 +84,13 @@ class ViewParseAjaxHandler(BaseHandler):
                 linkPos = self.find_str(item, str)
                 return item,lineNum,linkPos
             lineNum = lineNum+1
-            
+
     def parseForLinks(self, contents):
         discoveredLinks = []
         outputLinks = []
         # ugh lol
         regex = "(`|'|\")([\/]([_a-zA-Z0-9\-\_]+))+"
-        links = re.finditer(regex, contents) 
+        links = re.finditer(regex, contents)
         for link in links:
             linkStr = link.group(0)
             # discoveredLinks list to avoid dupes and complex dupe checks
@@ -114,7 +114,7 @@ class ViewParseAjaxHandler(BaseHandler):
     def formatHTMLOutput(self, html):
         output = output + html
         return output
-        
+
     def beautifyJS(self, content):
         return jsbeautifier.beautify(content)
 
@@ -122,17 +122,17 @@ class ViewParseAjaxHandler(BaseHandler):
         if len(line)>1000:
             return True
         return False
-        
+
     def fileRoutine(self, url, content):
         html = ""
-        
+
         # beautify the JS for cleaner parsing
         # note: this can be slow against large JS files and can lead to failure
         prettyContent = self.beautifyJS(content)
-        
+
         # parse all the links out
         parsedLinks = self.parseForLinks(prettyContent)
-        
+
         # if we have results, start building HTML
         if parsedLinks:
             print "Discovered {} links in {}".format(len(parsedLinks), url)
@@ -153,43 +153,44 @@ class ViewParseAjaxHandler(BaseHandler):
                 html = html+'<div class="link">{}: {}</div>'.format(link["lineNum"], highlightedLine)
             html = html+'</div>'
         return html
-        
+
     def fetchURL(self, url):
         sc = safeurl.SafeURL()
         res = sc.execute(url)
         return res
-        
+
     def parseLinks(self, url):
         html = ""
         file = self.fetchURL(url)
         html = html + self.fileRoutine(url, file)
         return html
-        
+
     def get(self):
-        
+
         error = False
         errorMsg = ""
-        
+
         url = self.get_argument("url")
 
         if error == False:
-            
+
             data = self.parseLinks(url)
+            data = unicode(data,errors='ignore')
 
             # set content-type
             self.set_header('Content-Type', 'application/json')
-            
+
             # output
             self.write(json_encode({
                 "url": url,
                 "output": data,
             }))
-            
+
         else:
 
             self.write("error")
 
-      
+
 #------------------------------------------------------------
 # Main
 #------------------------------------------------------------

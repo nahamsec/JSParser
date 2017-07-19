@@ -1,17 +1,42 @@
 
 var i = 0;
 
+function toggleHeaders() {
+    $("#headers").toggle();
+}
+
+function getCustomHeaders() {
+    var headers = $('#customHeaders').val().split("\n");
+    var customHeaders = [];
+    for (var i=0; i < headers.length; i++) {
+        if (/\S/.test(headers[i]))
+            customHeaders.push($.trim(headers[i]));
+    }
+    if(customHeaders) return JSON.stringify(customHeaders);
+    return null;
+}
+
 function parseJS(i, url) {
+    
     $("#results").append('<div class="result" id="result-'+i+'"><h1></h1><div class="output">Loading...</div></div>');
     $("#result-"+i+" h1").append("<a></a>");
     $("#result-"+i+" a").text(url).attr({'href':url,'target':'_new'});
-    $.getJSON("/parse/ajax?url="+url, function(data) {
+    
+    $.post("/parse/ajax", {
+        url: url,
+        headers: getCustomHeaders(),
+    }, function(data) {
+        // convert to json
+        console.log(data);
+        // output
         if(data["output"]) {
             $("#result-"+i+" .output").html(data["output"]);
         }else{
             $("#result-"+i+" .output").text("Failed load, parse, or no results.");
         }
-    })
+        
+    });
+    
 }
 
 function parseURLs() {

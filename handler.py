@@ -1,8 +1,9 @@
 
 import tornado.ioloop, tornado.web, tornado.autoreload
-from tornado.escape import json_encode
+from tornado.escape import json_encode, json_decode
 
-import safeurl, types, sys, datetime, calendar, time, re, mimetypes, re, glob, jsbeautifier, time, urlparse, datetime, requests
+import safeurl, types, sys, re, mimetypes, glob, jsbeautifier, urlparse, pycurl
+import calendar, time, datetime
 
 from netaddr import *
 from collections import defaultdict
@@ -153,28 +154,39 @@ class ViewParseAjaxHandler(BaseHandler):
                 html = html+'<div class="link">{}: {}</div>'.format(link["lineNum"], highlightedLine)
             html = html+'</div>'
         return html
-        
-    def fetchURL(self, url):
+
+    def fetchURL(self, url, headers=[]):
         sc = safeurl.SafeURL()
+        if headers:
+            newHeaders = []
+            for header in json_decode(headers):
+                try:
+                    header = header.split(":")
+                    newHeaders.append("{0}: {1}".format(header[0].strip(), header[1].strip()))
+                except:
+                    # ignore headers with invalid formats
+                    continue
+            sc._handle.setopt(pycurl.HTTPHEADER, newHeaders)
         res = sc.execute(url)
         return res
-        
-    def parseLinks(self, url):
+
+    def parseLinks(self, url, headers=[]):
         html = ""
-        file = self.fetchURL(url)
+        file = self.fetchURL(url, headers)
         html = html + self.fileRoutine(url, file)
         return html
-        
-    def get(self):
+
+    def post(self):
         
         error = False
         errorMsg = ""
         
         url = self.get_argument("url")
+        headers = self.get_argument("headers", [])
 
         if error == False:
             
-            data = self.parseLinks(url)
+            data = self.parseLinks(url, headers)
 
             # set content-type
             self.set_header('Content-Type', 'application/json')

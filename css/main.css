@@ -66,3 +66,7 @@ textarea.form-control {
     color: #000 !important;
 
 }
+
+#headers {
+    display: none;
+}

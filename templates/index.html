@@ -7,7 +7,12 @@
         <label for="urls">URLs</label>
         <textarea class="form-control" id="urls" name="urls" rows="3"></textarea>
       </div>
+      <div class="form-group" id="headers">
+        <label for="urls">Headers</label>
+        <textarea class="form-control" id="customHeaders" name="headers" rows="3"></textarea>
+      </div>
       <button type="button" class="btn btn-primary" onclick="parseURLs();">JSParse</button>
+      <button type="button" class="btn btn-primary headerBtn" onclick="toggleHeaders();">Custom Headers</button>
       <a href="https://github.com/nahamsec/JSParser/issues/new" target="_new" class="btn btn-white">Report an issue</a>
     </form>
 

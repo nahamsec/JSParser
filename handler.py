@@ -216,7 +216,7 @@ class ViewParseAjaxHandler(BaseHandler):
 #------------------------------------------------------------
 
 
-portNum = 8008
+portNum = int(sys.argv[sys.argv.index("-p")+1]) if "-p" in sys.argv else 8008
 
 # Application Settings
 settings = {

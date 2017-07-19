@@ -159,14 +159,23 @@ class ViewParseAjaxHandler(BaseHandler):
         sc = safeurl.SafeURL()
         if headers:
             newHeaders = []
-            for header in json_decode(headers):
-                try:
-                    header = header.split(":")
-                    newHeaders.append("{0}: {1}".format(header[0].strip(), header[1].strip()))
-                except:
-                    # ignore headers with invalid formats
-                    continue
-            sc._handle.setopt(pycurl.HTTPHEADER, newHeaders)
+            try:
+                for header in json_decode(headers):
+                    try:
+                        header = header.split(":")
+                        # pop the first item off in case there are multiple :
+                        key = header.pop(0).strip()
+                        val = ":".join(header).strip()
+                        newHeaders.append("{0}: {1}".format(key, val))
+                    # ignore if invalid format (lacks :)
+                    except:
+                        continue
+            # ignore if not json
+            except:
+                print 'ignoring custom headers'
+            if newHeaders:
+                sc._handle.setopt(pycurl.HTTPHEADER, newHeaders)
+
         res = sc.execute(url)
         return res
 

@@ -1,8 +1,24 @@
-
-import tornado.ioloop, tornado.web, tornado.autoreload
+#!/usr/bin/env python
+import tornado.ioloop
+import tornado.web
+import tornado.autoreload
 from tornado.escape import json_encode
 
-import safeurl, types, sys, datetime, calendar, time, re, mimetypes, re, glob, jsbeautifier, time, urlparse, datetime, requests
+import safeurl
+import types
+import sys
+import datetime
+import calendar
+import time
+import re
+import mimetypes
+import re
+import glob
+import jsbeautifier
+import time
+import urlparse
+import datetime
+import requests
 
 from netaddr import *
 from collections import defaultdict
@@ -13,8 +29,9 @@ from cgi import escape
 # Base / Status Code Handlers
 #------------------------------------------------------------
 
+
 class BaseHandler(tornado.web.RequestHandler):
-        
+
     def get_current_user(self):
         return []
 
@@ -22,11 +39,13 @@ class BaseHandler(tornado.web.RequestHandler):
         if status_code in [403, 404, 500, 503]:
             self.render(
                 'templates/error.html',
-                status_code = status_code
+                status_code=status_code
             )
+
 
 class ErrorHandler(tornado.web.ErrorHandler, BaseHandler):
     # override to prevent errors
+
     def get_current_user(self):
         return
     pass
@@ -35,10 +54,12 @@ class ErrorHandler(tornado.web.ErrorHandler, BaseHandler):
 # /
 #------------------------------------------------------------
 
+
 class MainHandler(BaseHandler):
+
     def initialize(self):
         return
-        
+
     def get(self):
         self.render(
             'templates/index.html',
@@ -48,21 +69,24 @@ class MainHandler(BaseHandler):
 # /about
 #------------------------------------------------------------
 
+
 class ViewAboutHandler(BaseHandler):
+
     def initialize(self):
         return
-        
+
     def get(self):
         self.render(
             'templates/about.html',
         )
 
-        
+
 #------------------------------------------------------------
 # /parse/ajax
 #------------------------------------------------------------
 
 class ViewParseAjaxHandler(BaseHandler):
+
     def initialize(self):
         return
 
@@ -76,27 +100,28 @@ class ViewParseAjaxHandler(BaseHandler):
                         return index
                 index += 1
         return -1
-        
+
     def findEntireLine(self, contents, str):
         lineNum = 0
         for item in contents.split("\n"):
             if str in item:
                 linkPos = self.find_str(item, str)
-                return item,lineNum,linkPos
+                return item, lineNum, linkPos
             lineNum = lineNum+1
-            
+
     def parseForLinks(self, contents):
         discoveredLinks = []
         outputLinks = []
         # ugh lol
         regex = "(`|'|\")([\/]([_a-zA-Z0-9\-\_]+))+"
-        links = re.finditer(regex, contents) 
+        links = re.finditer(regex, contents)
         for link in links:
             linkStr = link.group(0)
             # discoveredLinks list to avoid dupes and complex dupe checks
             if linkStr not in discoveredLinks:
                 # get the entire line, line number, and link position
-                entireLine,lineNum,linkPos = self.findEntireLine(contents, linkStr)
+                entireLine, lineNum, linkPos = self.findEntireLine(
+                    contents, linkStr)
                 discoveredLinks.append(linkStr)
                 outputLinks.append({
                     "line": entireLine,
@@ -108,34 +133,35 @@ class ViewParseAjaxHandler(BaseHandler):
 
     def getFormattedTimestamp(self):
         d = datetime.datetime.now()
-        formatted = "{}_{}_{}_{}-{}".format(d.month, d.day, d.year, d.hour, d.minute)
+        formatted = "{}_{}_{}_{}-{}".format(d.month,
+                                            d.day, d.year, d.hour, d.minute)
         return formatted
 
     def formatHTMLOutput(self, html):
         output = output + html
         return output
-        
+
     def beautifyJS(self, content):
         return jsbeautifier.beautify(content)
 
     def isLongLine(self, line):
-        if len(line)>1000:
+        if len(line) > 1000:
             return True
         return False
-        
+
     def fileRoutine(self, url, content):
         html = ""
-        
+
         # beautify the JS for cleaner parsing
         # note: this can be slow against large JS files and can lead to failure
         prettyContent = self.beautifyJS(content)
-        
+
         # parse all the links out
         parsedLinks = self.parseForLinks(prettyContent)
-        
+
         # if we have results, start building HTML
         if parsedLinks:
-            print "Discovered {} links in {}".format(len(parsedLinks), url)
+            print("Discovered {} links in {}".format(len(parsedLinks), url))
             # generate HTML output
             # html = html+'<h1>{}</h1><div class="file">'.format(url)
             html = html+'<div class="file">'
@@ -146,50 +172,62 @@ class ViewParseAjaxHandler(BaseHandler):
                 endPos = link["linkPos"]+len(link["link"])
                 # highlight the link
                 if self.isLongLine(link["line"]):
-                    highlightedLine = '...{}<span class="highlight">{}</span>{}...'.format(escape(link["line"][startPos-100:startPos]), link["link"], escape(link["line"][endPos:100]))
+                    highlightedLine = '...{}<span class="highlight"\
+                    >{}</span>{}...'.format(escape(
+                        link["line"][startPos-100:startPos]),
+                        link["link"],
+                        escape(link["line"][endPos:100])
+                    )
                 else:
-                    highlightedLine = '{}<span class="highlight">{}</span>{}'.format(escape(link["line"][:startPos]), link["link"], escape(link["line"][endPos:]))
+                    highlightedLine = '{}<span class="highlight"\
+                    >{}</span>{}'.format(
+                        escape(link["line"][:startPos]),
+                        link["link"],
+                        escape(link["line"][endPos:])
+                    )
                 # generate the link HTML
-                html = html+'<div class="link">{}: {}</div>'.format(link["lineNum"], highlightedLine)
+                html = html + \
+                    '<div class="link">{}: {}</div>'.format(
+                        link["lineNum"], highlightedLine)
             html = html+'</div>'
         return html
-        
+
     def fetchURL(self, url):
         sc = safeurl.SafeURL()
         res = sc.execute(url)
         return res
-        
+
     def parseLinks(self, url):
         html = ""
         file = self.fetchURL(url)
         html = html + self.fileRoutine(url, file)
         return html
-        
+
     def get(self):
-        
+
         error = False
         errorMsg = ""
-        
+
         url = self.get_argument("url")
 
         if error == False:
-            
+
             data = self.parseLinks(url)
 
             # set content-type
             self.set_header('Content-Type', 'application/json')
-            
+
             # output
             self.write(json_encode({
                 "url": url,
                 "output": data,
             }))
-            
+
         else:
 
             self.write("error")
 
-      
+
 #------------------------------------------------------------
 # Main
 #------------------------------------------------------------
@@ -208,10 +246,10 @@ urls = [
 
     (r"/", MainHandler),
 
-    (r"/images/(.*)", tornado.web.StaticFileHandler, { "path": "images/" }),
-    (r"/js/(.*)", tornado.web.StaticFileHandler, { "path": "js/" }),
-    (r"/css/(.*)", tornado.web.StaticFileHandler, { "path": "css/" }),
-    (r"/fonts/(.*)", tornado.web.StaticFileHandler, { "path": "fonts/" }),
+    (r"/images/(.*)", tornado.web.StaticFileHandler, {"path": "images/"}),
+    (r"/js/(.*)", tornado.web.StaticFileHandler, {"path": "js/"}),
+    (r"/css/(.*)", tornado.web.StaticFileHandler, {"path": "css/"}),
+    (r"/fonts/(.*)", tornado.web.StaticFileHandler, {"path": "fonts/"}),
 
     (r"/parse/ajax", ViewParseAjaxHandler),
     (r"/about", ViewAboutHandler),
@@ -220,12 +258,10 @@ urls = [
 
 application = tornado.web.Application(
     urls,
-    debug = True,
+    debug=True,
     **settings
 )
 
 if __name__ == "__main__":
     application.listen(portNum)
     tornado.ioloop.IOLoop.current().start()
-
-

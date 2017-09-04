@@ -1,0 +1,35 @@
+{% module Template("header.html") %}
+
+    <h1>Parse URLs</h1>
+    
+    <form method="post" name="parser">
+      <div class="form-group">
+        <label for="urls">URLs</label>
+        <textarea class="form-control" id="urls" name="urls" rows="3"></textarea>
+      </div>
+      <div class="form-group" id="headers">
+        <label for="urls">Headers</label>
+        <textarea class="form-control" id="customHeaders" name="headers" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <div class="checkbox-inline">
+          <label>
+              <input type="checkbox" id="hideResults" value="1" checked="true"> Hide Empty Results
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <button type="button" class="btn btn-primary" onclick="parseURLs();">JSParse</button>
+        <button type="button" class="btn btn-primary" onclick="toggleHeaders();">Custom Headers</button>
+        <a href="https://github.com/nahamsec/JSParser/issues/new" target="_new" class="btn btn-white">Report an issue</a>
+      </div>
+    </form>
+
+    <div class="progress">
+      <div class="progress-bar progress-bar-success progress-bar-striped" id="progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+    
+    <div id="results">
+    </div>
+    
+{% module Template("footer.html") %}

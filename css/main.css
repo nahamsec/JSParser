@@ -1,0 +1,75 @@
+.main {
+    margin-top: 100px;
+    width: 100%;
+}
+
+.form-group {
+    padding: 10px;
+}
+
+#results { font-family: Verdana; font-size: 14px; } 
+#results h1 {
+    font-size: 150%;
+    margin: 0;
+    padding: 5px;
+} 
+#results h2 { font-size: 125%; color: #666; } 
+#results .file {
+    padding: 5px;
+}
+#results .link { 
+    padding: 3px; 
+    border: 1px solid #555;
+    background: #eee none repeat scroll 0 0;
+} 
+#results .highlight { color: #000; background: yellow; }
+
+#results .result {
+    margin-top: 10px;
+    border: 1px solid #555;
+    border-radius: 0;
+    padding: 6px;
+    margin-bottom: 40px;
+}
+.navbar-inverse {
+    background-color: #000 !important;
+    border-color: #000 !important;
+}
+.navbar-inverse .navbar-collapse, 
+.navbar-inverse .navbar-form {
+    background-color: #000;
+}
+textarea.form-control {
+    width: 100%;
+    height: 155px !important;
+    border-radius: 0;
+    background-color: #eee;
+}
+.btn {
+    padding: 15px 30px !important;
+    margin-left: 10px;
+    font-weight: bold !important;
+    border: 3px;
+    border-color: #000 !important;
+    border-radius: 3px !important;
+    box-shadow: 0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08);
+    transition: all .15s ease;
+}
+.btn:hover {
+    box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
+}
+.btn-primary {
+    background-color: #000 !important;
+}
+.btn-white {
+    background-color: #fff !important;
+    color: #000 !important;
+}
+
+#headers {
+    display: none;
+}
+
+.progress {
+    display: none;
+}

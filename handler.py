@@ -80,6 +80,19 @@ class ViewAboutHandler(BaseHandler):
             'templates/about.html',
         )
 
+#------------------------------------------------------------
+# /readme
+#------------------------------------------------------------
+
+class ViewReadmeHandler(BaseHandler):
+
+    def initialize(self):
+        return
+
+    def get(self):
+        self.render(
+            'templates/readme.html',
+        )
 
 #------------------------------------------------------------
 # /parse/ajax
@@ -112,8 +125,29 @@ class ViewParseAjaxHandler(BaseHandler):
     def parseForLinks(self, contents):
         discoveredLinks = []
         outputLinks = []
-        # ugh lol
-        regex = "(`|'|\")([\/]([_a-zA-Z0-9\-\_]+))+"
+        # Borrowed from https://github.com/GerbenJavado/LinkFinder/
+        addition = ("","")
+        regex = re.compile(r"""
+		  (%s(?:"|')
+		  (?:
+		    ((?:[a-zA-Z]{1,10}://|//)
+		    [^"'/]{1,}\.
+		    [a-zA-Z]{2,}[^"']{0,})
+		    |
+		    ((?:/|\.\./|\./)
+		    [^"'><,;| *()(%%$^/\\\[\]]
+		    [^"'><,;|()]{1,})
+		    |
+		    ([a-zA-Z0-9_\-/]{1,}/
+		    [a-zA-Z0-9_\-/]{1,}\.[a-z]{1,4}
+		    (?:[\?|/][^"|']{0,}|))
+		    |
+		    ([a-zA-Z0-9_\-]{1,}
+		    \.(?:php|asp|aspx|jsp)
+		    (?:\?[^"|']{0,}|))
+		  )
+		  (?:"|')%s)
+		""" % addition, re.VERBOSE)        
         links = re.finditer(regex, contents)
         for link in links:
             linkStr = link.group(0)
@@ -166,7 +200,7 @@ class ViewParseAjaxHandler(BaseHandler):
             # html = html+'<h1>{}</h1><div class="file">'.format(url)
             html = html+'<div class="file">'
             for link in parsedLinks:
-                html = html+"<h2>{}</h2>".format(link["link"][1:])
+                html = html+"<h2>{}</h2>".format(link["link"][1:-1])
                 # Get positions for highlighting
                 startPos = link["linkPos"]
                 endPos = link["linkPos"]+len(link["link"])
@@ -234,6 +268,7 @@ class ViewParseAjaxHandler(BaseHandler):
 
 
 portNum = 8008
+print "Running on http://localhost:8008"
 
 # Application Settings
 settings = {
@@ -253,6 +288,7 @@ urls = [
 
     (r"/parse/ajax", ViewParseAjaxHandler),
     (r"/about", ViewAboutHandler),
+    (r"/readme", ViewReadmeHandler)
 
 ]
 

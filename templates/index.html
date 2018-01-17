@@ -2,14 +2,16 @@
 
     <h1>Parse URLs</h1>
     
+    <p>Simply paste your target URLs in the form below and <i>JSParse</i> will discover endpoints in the source code.</p>
+
     <form method="post" name="parser">
       <div class="form-group">
         <label for="urls">URLs</label>
         <textarea class="form-control" id="urls" name="urls" rows="3"></textarea>
       </div>
-      <button type="button" class="btn btn-primary" onclick="parseURLs();">JSParse</button>
+      <button type="button" class="btn btn-primary" onclick="parseURLs();">Run JSParse</button>
       <a href="https://github.com/nahamsec/JSParser/issues/new" target="_new" class="btn btn-white">Report an issue</a>
-    </form>
+    </form>   
 
     <div id="results"></div>
     

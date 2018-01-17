@@ -7,6 +7,10 @@
     padding: 10px;
 }
 
+textarea.form-control {
+    padding: 6px;
+}
+
 #results { font-family: Verdana; font-size: 14px; } 
 #results h1 {
     font-size: 150%;
@@ -26,9 +30,10 @@
 
 #results .result {
     margin-top: 10px;
-    border: 1px solid #555;
-    border-radius: 0;
-    padding: 6px;
+    border: 1px solid #000;
+    box-shadow: 0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08);
+    border-radius: 3px;
+    padding: 15px 6px;
     margin-bottom: 40px;
 }
 .navbar-inverse {
@@ -64,5 +69,10 @@ textarea.form-control {
 .btn-white {
     background-color: #fff !important;
     color: #000 !important;
-
+}
+img {
+    margin: 15px 7px;
+    height: 200px;
+    width: auto;
+    border-radius: 50%;
 }

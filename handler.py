@@ -1,6 +1,7 @@
 from __future__ import print_function
 import tornado.ioloop, tornado.web, tornado.autoreload
 from tornado.escape import json_encode, json_decode
+import json
 
 import safeurl, types, sys, re, mimetypes, glob, jsbeautifier, urlparse, pycurl
 import calendar, time, datetime
@@ -15,7 +16,7 @@ from cgi import escape
 #------------------------------------------------------------
 
 class BaseHandler(tornado.web.RequestHandler):
-        
+
     def get_current_user(self):
         return []
 
@@ -39,7 +40,7 @@ class ErrorHandler(tornado.web.ErrorHandler, BaseHandler):
 class MainHandler(BaseHandler):
     def initialize(self):
         return
-        
+
     def get(self):
         self.render(
             'templates/index.html',
@@ -52,13 +53,13 @@ class MainHandler(BaseHandler):
 class ViewAboutHandler(BaseHandler):
     def initialize(self):
         return
-        
+
     def get(self):
         self.render(
             'templates/about.html',
         )
 
-        
+
 #------------------------------------------------------------
 # /parse/ajax
 #------------------------------------------------------------
@@ -77,7 +78,7 @@ class ViewParseAjaxHandler(BaseHandler):
                         return index
                 index += 1
         return -1
-        
+
     def findEntireLine(self, contents, str):
         lineNum = 0
         for item in contents.split("\n"):
@@ -85,13 +86,13 @@ class ViewParseAjaxHandler(BaseHandler):
                 linkPos = self.find_str(item, str)
                 return item,lineNum,linkPos
             lineNum = lineNum+1
-            
+
     def parseForLinks(self, contents):
         discoveredLinks = []
         outputLinks = []
         # ugh lol
         regex = r"[^/][`'\"]([\/][a-zA-Z0-9_.-]+)+(?!([gimuy]*[,;\s])|\/\2)"
-        links = re.finditer(regex, contents) 
+        links = re.finditer(regex, contents)
         for link in links:
             linkStr = link.group(0)
             # discoveredLinks list to avoid dupes and complex dupe checks
@@ -107,6 +108,33 @@ class ViewParseAjaxHandler(BaseHandler):
                 })
         return outputLinks
 
+    def parseForKeywords(self, contents, keywords=[]):
+        if len(keywords) == 0:
+            return []
+
+        discoveredLinks = []
+        outputLinks = []
+        # ugh yeah
+
+        for keyword in keywords:
+            regex = r".*"+re.escape(keyword)+".*"
+            links = re.finditer(regex, contents)
+            for link in links:
+                linkStr = link.group(0)
+                # discoveredLinks list to avoid dupes and complex dupe checks
+                if linkStr not in discoveredLinks:
+                    # get the entire line, line number, and link position
+                    entireLine,lineNum,linkPos = self.findEntireLine(contents, linkStr)
+                    discoveredLinks.append(linkStr)
+                    # print(entireLine)
+                    outputLinks.append({
+                        "line": entireLine,
+                        "link": linkStr,
+                        "lineNum": lineNum,
+                        "linkPos": linkPos
+                    })
+        return outputLinks
+
     def getFormattedTimestamp(self):
         d = datetime.datetime.now()
         formatted = "{}_{}_{}_{}-{}".format(d.month, d.day, d.year, d.hour, d.minute)
@@ -115,25 +143,23 @@ class ViewParseAjaxHandler(BaseHandler):
     def formatHTMLOutput(self, html):
         output = output + html
         return output
-        
+
     def beautifyJS(self, content):
         return jsbeautifier.beautify(content)
 
     def isLongLine(self, line):
-        if len(line)>1000:
-            return True
-        return False
-        
-    def fileRoutine(self, url, content):
+        return len(line)>1000
+
+    def fileRoutine(self, url, content, keywords):
         html = ""
-        
+
         # beautify the JS for cleaner parsing
         # note: this can be slow against large JS files and can lead to failure
         prettyContent = self.beautifyJS(content)
-        
+
         # parse all the links out
-        parsedLinks = self.parseForLinks(prettyContent)
-        
+        parsedLinks = self.parseForLinks(prettyContent) + self.parseForKeywords(prettyContent, keywords)
+
         # if we have results, start building HTML
         if parsedLinks:
             print("Discovered {} links in {}".format(len(parsedLinks), url))
@@ -141,7 +167,7 @@ class ViewParseAjaxHandler(BaseHandler):
             # html = html+'<h1>{}</h1><div class="file">'.format(url)
             html = html+'<div class="file">'
             for link in parsedLinks:
-                html = html+"<h2>{}</h2>".format(link["link"][1:])
+                html = html+"<h2>{}</h2>".format(link["link"][0:].replace("<", "&lt;"))
                 # Get positions for highlighting
                 startPos = link["linkPos"]
                 endPos = link["linkPos"]+len(link["link"])
@@ -179,38 +205,44 @@ class ViewParseAjaxHandler(BaseHandler):
         res = sc.execute(url)
         return res
 
-    def parseLinks(self, url, headers=[]):
+    def parseLinks(self, url, headers=[], keywords=[]):
         html = ""
         file = self.fetchURL(url, headers)
-        html = html + self.fileRoutine(url, file)
+        html = html + self.fileRoutine(url, file, keywords)
         return html
 
     def post(self):
-        
+
         error = False
         errorMsg = ""
-        
+
         url = self.get_argument("url")
         headers = self.get_argument("headers", [])
+        keywords = self.get_argument("keywords", False)
+        if (keywords == False):
+            keywords = []
+        else:
+            keywords = json.loads(keywords)
+
 
         if error == False:
-            
-            data = self.parseLinks(url, headers)
+
+            data = self.parseLinks(url, headers, keywords)
 
             # set content-type
             self.set_header('Content-Type', 'application/json')
-            
+
             # output
             self.write(json_encode({
                 "url": url,
                 "output": data,
             }))
-            
+
         else:
 
             self.write("error")
 
-      
+
 #------------------------------------------------------------
 # Main
 #------------------------------------------------------------

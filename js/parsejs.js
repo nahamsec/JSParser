@@ -10,10 +10,14 @@ class Result {
         this.result = result;
         this.output = output;
     }
-}        
+}
 
 function toggleHeaders() {
     $("#headers").toggle();
+}
+
+function toggleKeywords() {
+    $("#keywords").toggle();
 }
 
 function getCustomHeaders() {
@@ -27,10 +31,19 @@ function getCustomHeaders() {
     return null;
 }
 
+function removeDuplicateAndEmpty(vals){
+    var uniqueVals = [];
+    $.each(vals, function(i, el){
+        if(el !== '' && $.inArray(el, uniqueVals) === -1) uniqueVals.push(el);
+    });
+    return uniqueVals;
+}
+
 function parseJS(url) {
     $.post("/parse/ajax", {
         url: url,
         headers: getCustomHeaders(),
+        keywords: JSON.stringify(removeDuplicateAndEmpty($('#customKeywords').val().split("\n")))
     }, function(data) {
         var succeeded = false;
         // success if we have output
@@ -142,7 +155,7 @@ function hideResults() {
 
 $(function() {
     rebuildResults();
-    $('#hideResults').change(function() { 
+    $('#hideResults').change(function() {
         toggleResults();
     });
 });

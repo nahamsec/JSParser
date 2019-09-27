@@ -38,4 +38,7 @@ $ python handler.py
 
 # Changelog
 
+```
 1.0 - Release
+1.1 - Add keywords search
+```

@@ -729,4 +729,5 @@ class SafeURL(object):
             if not redirected:
                 break
 
-        return response.getvalue()
+        return response.getvalue().decode('utf-8')
+

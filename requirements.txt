@@ -1,5 +1,5 @@
 safeurl
-tornado
+tornado<=5.1
 jsbeautifier
 netaddr
 pycurl

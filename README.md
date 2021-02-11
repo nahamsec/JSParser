@@ -11,7 +11,7 @@ A python 2.7 script using Tornado and JSBeautifier to parse relative URLs from J
 # Installing
 
 ```
-$ python setup.py install
+$ python3 setup.py install
 ```
 
 # Running
@@ -19,7 +19,7 @@ $ python setup.py install
 Run `handler.py` and then visit http://localhost:8008.
 
 ```
-$ python handler.py
+$ python3 handler.py
 ```
 
 # Authors

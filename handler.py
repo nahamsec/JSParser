@@ -2,7 +2,7 @@ from __future__ import print_function
 import tornado.ioloop, tornado.web, tornado.autoreload
 from tornado.escape import json_encode, json_decode
 
-import safeurl, types, sys, re, mimetypes, glob, jsbeautifier, urlparse, pycurl
+import safeurl, types, sys, re, mimetypes, glob, jsbeautifier, urllib.parse, pycurl
 import calendar, time, datetime
 
 from netaddr import *

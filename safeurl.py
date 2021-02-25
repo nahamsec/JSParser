@@ -13,7 +13,13 @@ from numbers import Number
 from socket import gethostbyname_ex
 
 import re
-import netaddr
+try:
+    import netaddr
+except:
+    # On more recent OS', the script won't be able to import the netaddr library without higher privileges.
+    print("You must run this script as root!")
+    exit()
+
 import pycurl
 import StringIO
 

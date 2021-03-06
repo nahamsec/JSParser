@@ -674,7 +674,6 @@ class SafeURL(object):
         """
         # Backup the existing URL
         originalUrl = url
-        print("User entered URL:" + url)
         # Execute, catch redirects and validate the URL
         redirected = False
         redirectCount = 0

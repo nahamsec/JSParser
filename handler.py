@@ -2,13 +2,26 @@ from __future__ import print_function
 import tornado.ioloop, tornado.web, tornado.autoreload
 from tornado.escape import json_encode, json_decode
 
-import safeurl, types, sys, re, mimetypes, glob, jsbeautifier, urlparse, pycurl
+import safeurl, types, sys, re, mimetypes, glob, jsbeautifier, pycurl
+
+# Python 2.7/3 urlparse
+try:
+    # Python 2.7
+    from urlparse import urlparse
+    # from urllib import quote
+except:
+    # Python 3
+    from urllib.parse import urlparse
+    # from urllib.parse import quote
+
+
 import calendar, time, datetime
 
 from netaddr import *
 from collections import defaultdict
 from bs4 import BeautifulSoup
-from cgi import escape
+# from cgi import escape
+from html import escape
 
 #------------------------------------------------------------
 # Base / Status Code Handlers

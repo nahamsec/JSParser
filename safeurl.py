@@ -15,8 +15,9 @@ from socket import gethostbyname_ex
 import re
 import netaddr
 import pycurl
-import StringIO
-
+# import StringIO
+ # This is python3
+import io
 # Python 2.7/3 urlparse
 try:
     # Python 2.7
@@ -673,7 +674,6 @@ class SafeURL(object):
         """
         # Backup the existing URL
         originalUrl = url
-
         # Execute, catch redirects and validate the URL
         redirected = False
         redirectCount = 0
@@ -707,7 +707,8 @@ class SafeURL(object):
                 self._handle.setopt(pycurl.URL, url["cleanUrl"])
 
             # Execute the cURL request
-            response = StringIO.StringIO()
+            # response = io.StringIO.StringIO()
+            response = io.BytesIO()
             self._handle.setopt(pycurl.WRITEFUNCTION, response.write)
             self._handle.perform()
 
@@ -729,4 +730,5 @@ class SafeURL(object):
             if not redirected:
                 break
 
-        return response.getvalue()
+        # return response.getvalue() # Python 2
+        return response.getvalue().decode('utf-8')

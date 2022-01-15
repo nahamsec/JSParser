@@ -26,9 +26,23 @@ python2 -m pip install netaddr
 python2 -m pip install pycurl==7.43.0.5
 python2 -m pip install jsbeautifier==1.8.0
 python2 -m pip install bs4
-$ python setup.py install
 ```
 
+## Windows
+```
+Python 2.7.18 - https://www.python.org/downloads/release/python-2718/
+curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
+python2 get-pip.py
+
+
+https://pypi.org/project/pycurl/7.43.0.2/#files
+https://files.pythonhosted.org/packages/b3/6c/071e387e40ea3f1d685152f8af41fac32627b4127bb1e050b1cb85a66ca1/pycurl-7.43.0.2.win-amd64-py2.7.exe
+
+python2 -m pip install tornado==5.1
+python2 -m pip install netaddr
+python2 -m pip install jsbeautifier==1.8.0
+python2 -m pip install bs4
+```
 # Running
 
 Run `handler.py` and then visit http://localhost:8008.

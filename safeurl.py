@@ -431,6 +431,7 @@ class Url(object):
         :rtype: string
         """
         # Whitelist always takes precedence over a blacklist
+        """
         if not options.isInList("whitelist", "scheme", scheme):
             raise InvalidSchemeException("Provided scheme 'scheme' doesn't \
                 match whitelisted values: %s" % (
@@ -440,7 +441,7 @@ class Url(object):
             raise InvalidSchemeException(
                 "Provided scheme 'scheme' matches a blacklisted value")
 
-        # Existing value is fine
+        # Existing value is fine"""
         return scheme
 
     @staticmethod
@@ -454,7 +455,7 @@ class Url(object):
         :type arg2: :class:`Options`
 
         :rtype: int
-        """
+        """"""
         if not options.isInList("whitelist", "port", port):
             raise InvalidPortException("Provided port 'port' doesn't match \
                 whitelisted values: %s" % (
@@ -464,7 +465,7 @@ class Url(object):
             raise InvalidPortException(
                 "Provided port 'port' matches a blacklisted value")
 
-        # Existing value is fine
+        # Existing value is fine"""
         return port
 
     @staticmethod
@@ -480,7 +481,7 @@ class Url(object):
         :type arg3: :class:`Options`
 
         :rtype: string
-        """
+        """"""
         # Check the host against the domain lists
         if not options.isInList("whitelist", "domain", hostname):
             raise InvalidDomainException("Provided hostname 'hostname' doesn't match \
@@ -511,7 +512,7 @@ class Url(object):
                 raise InvalidIPException("Provided hostname 'hostname' \
                     resolves to '%s', which matches a blacklisted value: %s" % (
                     ", ".join(ips), blacklistedIps))
-
+"""
         return hostname
 
     @staticmethod

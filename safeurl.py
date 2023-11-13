@@ -15,7 +15,7 @@ from socket import gethostbyname_ex
 import re
 import netaddr
 import pycurl
-import StringIO
+from io import StringIO
 
 # Python 2.7/3 urlparse
 try:
